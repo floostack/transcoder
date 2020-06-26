@@ -33,7 +33,7 @@
 ## Download from Github
 
 ```shell
-go get github.com/floostack/go-transcoder
+go get github.com/floostack/gotrans
 ```
 
 ## Example
