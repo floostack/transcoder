@@ -1,4 +1,4 @@
-# FLOOTIC UI
+# Golang Transcoding Library
 
 <br />
 
@@ -36,9 +36,46 @@
 go get github.com/floostack/go-transcoder
 ```
 
-## Initialize Transcoder 
-Transcoding process requires the following parameters to work
+## Example
 
 ```go
+package main
 
+import (
+	"log"
+
+	ffmpeg "github.com/floostack/gotrans/ffmpeg"
+)
+
+func main() {
+
+	format := "mp4"
+	overwrite := true
+
+	opts := ffmpeg.Options{
+		OutputFormat: &format,
+		Overwrite:    &overwrite,
+	}
+
+	ffmpegConf := &ffmpeg.Config{
+		FfmpegBinPath:   "/usr/local/bin/ffmpeg",
+		FfprobeBinPath:  "/usr/local/bin/ffprobe",
+		ProgressEnabled: true,
+	}
+
+	progress, err := ffmpeg.
+		New(ffmpegConf).
+		Input("/tmp/avi").
+		Output("/tmp/mp4").
+		WithOptions(opts).
+		Start(opts)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for msg := range progress {
+		log.Printf("%+v", msg)
+	}
+}
 ```
