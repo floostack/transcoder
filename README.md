@@ -3,13 +3,14 @@
 <br />
 
 <div align="center">
-  <!-- Build Status -->
-  <a href="https://travis-ci.org/flootic/flootic">
-    <img src="https://travis-ci.org/flootic/flootic.svg" alt="Build Status" />
+  <!-- Build status -->
+  <a href="https://circleci.com/gh/floostack/gotrans">
+    <img src="https://circleci.com/gh/floostack/gotrans.svg?style=svg" alt="Build Status" />
   </a>
-  <!-- Test Coverage -->
-  <a href="https://coveralls.io/r/flootic/flootic">
-    <img src="https://coveralls.io/repos/github/flootic/flootic/badge.svg" alt="Test Coverage" />
+
+  <!-- Code Quality -->
+  <a href="https://www.codacy.com/manual/floostack/gotrans?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=floostack/gotrans&amp;utm_campaign=Badge_Grade">
+    <img src="https://app.codacy.com/project/badge/Grade/f8ee19ef723b4134bb8bb1f9c439959e" alt="Build Status" />
   </a>
 
 </div>
