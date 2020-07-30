@@ -4,12 +4,12 @@
 
 <div align="center">
   <!-- Build status -->
-  <a href="https://circleci.com/gh/floostack/gotrans">
-    <img src="https://circleci.com/gh/floostack/gotrans.svg?style=svg" alt="Build Status" />
+  <a href="https://circleci.com/gh/floostack/transcoder">
+    <img src="https://circleci.com/gh/floostack/transcoder.svg?style=svg" alt="Build Status" />
   </a>
 
   <!-- Code Quality -->
-  <a href="https://www.codacy.com/manual/floostack/gotrans?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=floostack/gotrans&amp;utm_campaign=Badge_Grade">
+  <a href="https://www.codacy.com/manual/floostack/transcoder?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=floostack/transcoder&amp;utm_campaign=Badge_Grade">
     <img src="https://app.codacy.com/project/badge/Grade/f8ee19ef723b4134bb8bb1f9c439959e" alt="Build Status" />
   </a>
 
@@ -34,7 +34,7 @@
 ## Download from Github
 
 ```shell
-go get github.com/floostack/gotrans
+go get github.com/floostack/transcoder
 ```
 
 ## Example
@@ -45,7 +45,7 @@ package main
 import (
 	"log"
 
-	ffmpeg "github.com/floostack/gotrans/ffmpeg"
+	ffmpeg "github.com/floostack/transcoder/ffmpeg"
 )
 
 func main() {
