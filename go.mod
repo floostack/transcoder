@@ -1,3 +1,3 @@
-module github.com/floostack/gotrans
+module github.com/floostack/transcoder
 
 go 1.13

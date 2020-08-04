@@ -1,4 +1,4 @@
-package gotrans
+package transcoder
 
 // Progress ...
 type Progress interface {

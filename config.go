@@ -1,4 +1,4 @@
-package gotrans
+package transcoder
 
 // Config ...
 type Config interface{}

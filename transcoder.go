@@ -1,4 +1,4 @@
-package gotrans
+package transcoder
 
 import "io"
 

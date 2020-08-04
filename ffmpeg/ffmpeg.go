@@ -13,8 +13,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/floostack/gotrans"
-	"github.com/floostack/gotrans/utils"
+	"github.com/floostack/transcoder"
+	"github.com/floostack/transcoder/utils"
 )
 
 // Transcoder ...
@@ -31,16 +31,16 @@ type Transcoder struct {
 }
 
 // New ...
-func New(cfg *Config) gotrans.Transcoder {
+func New(cfg *Config) transcoder.Transcoder {
 	return &Transcoder{config: cfg}
 }
 
 // Start ...
-func (t *Transcoder) Start(opts gotrans.Options) (<-chan gotrans.Progress, error) {
+func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress, error) {
 
 	var stderrIn io.ReadCloser
 
-	out := make(chan gotrans.Progress)
+	out := make(chan transcoder.Progress)
 
 	defer t.closePipes()
 
@@ -64,8 +64,6 @@ func (t *Transcoder) Start(opts gotrans.Options) (<-chan gotrans.Progress, error
 	// Initialize command
 	cmd := exec.Command(t.config.FfmpegBinPath, args...)
 
-	// cmd.Stderr = os.Stdout
-
 	// If progresss enabled, get stderr pipe and start progress process
 	if t.config.ProgressEnabled && !t.config.Verbose {
 		stderrIn, err = cmd.StderrPipe()
@@ -88,31 +86,32 @@ func (t *Transcoder) Start(opts gotrans.Options) (<-chan gotrans.Progress, error
 		go func() {
 			t.progress(stderrIn, out)
 		}()
-	}
 
-	go func() {
-		defer close(out)
-		// Start process
+		go func() {
+			defer close(out)
+			err = cmd.Wait()
+		}()
+	} else {
 		err = cmd.Wait()
-	}()
+	}
 
 	return out, nil
 }
 
 // Input ...
-func (t *Transcoder) Input(arg string) gotrans.Transcoder {
+func (t *Transcoder) Input(arg string) transcoder.Transcoder {
 	t.input = arg
 	return t
 }
 
 // Output ...
-func (t *Transcoder) Output(arg string) gotrans.Transcoder {
+func (t *Transcoder) Output(arg string) transcoder.Transcoder {
 	t.output = arg
 	return t
 }
 
 // InputPipe ...
-func (t *Transcoder) InputPipe(w *io.WriteCloser, r *io.ReadCloser) gotrans.Transcoder {
+func (t *Transcoder) InputPipe(w *io.WriteCloser, r *io.ReadCloser) transcoder.Transcoder {
 	if &t.input == nil {
 		t.inputPipeWriter = w
 		t.inputPipeReader = r
@@ -121,7 +120,7 @@ func (t *Transcoder) InputPipe(w *io.WriteCloser, r *io.ReadCloser) gotrans.Tran
 }
 
 // OutputPipe ...
-func (t *Transcoder) OutputPipe(w *io.WriteCloser, r *io.ReadCloser) gotrans.Transcoder {
+func (t *Transcoder) OutputPipe(w *io.WriteCloser, r *io.ReadCloser) transcoder.Transcoder {
 	if &t.output == nil {
 		t.outputPipeWriter = w
 		t.outputPipeReader = r
@@ -130,7 +129,7 @@ func (t *Transcoder) OutputPipe(w *io.WriteCloser, r *io.ReadCloser) gotrans.Tra
 }
 
 // WithOptions ...
-func (t *Transcoder) WithOptions(opts gotrans.Options) gotrans.Transcoder {
+func (t *Transcoder) WithOptions(opts transcoder.Options) transcoder.Transcoder {
 	t.options = opts.GetStrArguments()
 	return t
 }
@@ -187,7 +186,7 @@ func (t *Transcoder) getMetadata() (metadata *Metadata, err error) {
 }
 
 // progress sends through given channel the transcoding status
-func (t *Transcoder) progress(stream io.ReadCloser, out chan gotrans.Progress) {
+func (t *Transcoder) progress(stream io.ReadCloser, out chan transcoder.Progress) {
 
 	defer stream.Close()
 

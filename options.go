@@ -1,4 +1,4 @@
-package gotrans
+package transcoder
 
 // Options ...
 type Options interface {
