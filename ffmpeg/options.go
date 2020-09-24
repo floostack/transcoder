@@ -13,7 +13,7 @@ type Options struct {
 	VideoBitRateTolerance *int              `flag:"-bt"`
 	VideoMaxBitRate       *int              `flag:"-maxrate"`
 	VideoMinBitrate       *int              `flag:"-minrate"`
-	VideoCodec            *string           `flag:"--c:v"`
+	VideoCodec            *string           `flag:"-c:v"`
 	Vframes               *int              `flag:"-vframes"`
 	FrameRate             *int              `flag:"-r"`
 	AudioRate             *int              `flag:"-ar"`
