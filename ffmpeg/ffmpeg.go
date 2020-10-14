@@ -134,6 +134,11 @@ func (t *Transcoder) WithOptions(opts transcoder.Options) transcoder.Transcoder 
 	return t
 }
 
+func (t *Transcoder) WithAdditionalOptions(opts transcoder.Options) transcoder.Transcoder {
+	t.options = append(t.options, opts.GetStrArguments()...)
+	return t
+}
+
 // validate ...
 func (t *Transcoder) validate() error {
 	if t.config.FfmpegBinPath == "" {
