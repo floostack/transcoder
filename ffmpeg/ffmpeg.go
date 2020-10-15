@@ -184,7 +184,7 @@ func (t *Transcoder) validate() error {
 
 	for index, output := range t.output {
 		if output == "" {
-			return errors.New(fmt.Sprintf("output at index %d is an empty string", index))
+			return fmt.Errorf("output at index %d is an empty string", index)
 		}
 	}
 
