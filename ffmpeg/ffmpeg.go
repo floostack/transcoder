@@ -23,7 +23,7 @@ type Transcoder struct {
 	input            string
 	output           string
 	options          []string
-	metadata         *Metadata
+	metadata         transcoder.Metadata
 	inputPipeReader  *io.ReadCloser
 	outputPipeReader *io.ReadCloser
 	inputPipeWriter  *io.WriteCloser
@@ -50,7 +50,7 @@ func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress,
 	}
 
 	// Get file metadata
-	_, err := t.getMetadata()
+	_, err := t.GetMetadata()
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +151,7 @@ func (t *Transcoder) validate() error {
 	return nil
 }
 
-func (t *Transcoder) getMetadata() (metadata *Metadata, err error) {
+func (t *Transcoder) GetMetadata() ( transcoder.Metadata, error) {
 
 	if t.config.FfprobeBinPath != "" {
 		var outb, errb bytes.Buffer
@@ -172,6 +172,8 @@ func (t *Transcoder) getMetadata() (metadata *Metadata, err error) {
 		if err != nil {
 			return nil, fmt.Errorf("error executing (%s) with args (%s) | error: %s | message: %s %s", t.config.FfprobeBinPath, args, err, outb.String(), errb.String())
 		}
+
+		var metadata Metadata
 
 		if err = json.Unmarshal([]byte(outb.String()), &metadata); err != nil {
 			return nil, err
@@ -256,7 +258,7 @@ func (t *Transcoder) progress(stream io.ReadCloser, out chan transcoder.Progress
 			}
 
 			timesec := utils.DurToSec(currentTime)
-			dursec, _ := strconv.ParseFloat(t.metadata.Format.Duration, 64)
+			dursec, _ := strconv.ParseFloat(t.metadata.GetFormat().GetDuration(), 64)
 
 			progress := (timesec * 100) / dursec
 			Progress.Progress = progress
