@@ -151,6 +151,7 @@ func (t *Transcoder) validate() error {
 	return nil
 }
 
+// GetMetadata Returns metadata for the specified input file
 func (t *Transcoder) GetMetadata() ( transcoder.Metadata, error) {
 
 	if t.config.FfprobeBinPath != "" {

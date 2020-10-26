@@ -1,10 +1,12 @@
 package transcoder
 
+// Metadata ...
 type Metadata interface {
 	GetFormat() Format
 	GetStreams() []Streams
 }
 
+// Format ...
 type Format interface {
 	GetFilename() string
 	GetNbStreams() int
@@ -18,6 +20,7 @@ type Format interface {
 	GetTags() Tags
 }
 
+// Streams ...
 type Streams interface {
 	GetIndex() int
 	GetID() string
@@ -50,10 +53,12 @@ type Streams interface {
 	GetBitRate() string
 }
 
+// Tags ...
 type Tags interface {
 	GetEncoder() string
 }
 
+// Disposition ...
 type Disposition interface {
 	GetDefault() int
 	GetDub() int

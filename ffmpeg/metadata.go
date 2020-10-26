@@ -22,7 +22,7 @@ type Format struct {
 	Tags           Tags   `json:"tags"`
 }
 
-// Streams defines allowed stream options
+// Streams ...
 type Streams struct {
 	Index              int
 	ID                 string      `json:"id"`
@@ -137,202 +137,202 @@ func (f Format) GetTags() transcoder.Tags {
 	return f.Tags
 }
 
-// GetEncoder
+// GetEncoder ...
 func (t Tags) GetEncoder() string {
 	return t.Encoder
 }
 
-//GetIndex
+//GetIndex ...
 func (s Streams) GetIndex() int {
 	return s.Index
 }
 
-//GetID
+//GetID ...
 func (s Streams) GetID() string {
 	return s.ID
 }
 
-//GetCodecName
+//GetCodecName ...
 func (s Streams) GetCodecName() string {
 	return s.CodecName
 }
 
-//GetCodecLongName
+//GetCodecLongName ...
 func (s Streams) GetCodecLongName() string {
 	return s.CodecLongName
 }
 
-//GetProfile
+//GetProfile ...
 func (s Streams) GetProfile() string {
 	return s.Profile
 }
 
-//GetCodecType
+//GetCodecType ...
 func (s Streams) GetCodecType() string {
 	return s.CodecType
 }
 
-//GetCodecTimeBase
+//GetCodecTimeBase ...
 func (s Streams) GetCodecTimeBase() string {
 	return s.CodecTimeBase
 }
 
-//GetCodecTagString
+//GetCodecTagString ...
 func (s Streams) GetCodecTagString() string {
 	return s.CodecTagString
 }
 
-//GetCodecTag
+//GetCodecTag ...
 func (s Streams) GetCodecTag() string {
 	return s.CodecTag
 }
 
-//GetWidth
+//GetWidth ...
 func (s Streams) GetWidth() int {
 	return s.Width
 }
 
-//GetHeight
+//GetHeight ...
 func (s Streams) GetHeight() int {
 	return s.Height
 }
 
-//GetCodedWidth
+//GetCodedWidth ...
 func (s Streams) GetCodedWidth() int {
 	return s.CodedWidth
 }
 
-//GetCodedHeight
+//GetCodedHeight ...
 func (s Streams) GetCodedHeight() int {
 	return s.CodedHeight
 }
 
-//GetHasBFrames
+//GetHasBFrames ...
 func (s Streams) GetHasBFrames() int {
 	return s.HasBFrames
 }
 
-//GetSampleAspectRatio
+//GetSampleAspectRatio ...
 func (s Streams) GetSampleAspectRatio() string {
 	return s.SampleAspectRatio
 }
 
-//GetDisplayAspectRatio
+//GetDisplayAspectRatio ...
 func (s Streams) GetDisplayAspectRatio() string {
 	return s.DisplayAspectRatio
 }
 
-//GetPixFmt
+//GetPixFmt ...
 func (s Streams) GetPixFmt() string {
 	return s.PixFmt
 }
 
-//GetLevel
+//GetLevel ...
 func (s Streams) GetLevel() int {
 	return s.Level
 }
 
-//GetChromaLocation
+//GetChromaLocation ...
 func (s Streams) GetChromaLocation() string {
 	return s.ChromaLocation
 }
 
-//GetRefs
+//GetRefs ...
 func (s Streams) GetRefs() int {
 	return s.Refs
 }
 
-//GetQuarterSample
+//GetQuarterSample ...
 func (s Streams) GetQuarterSample() string {
 	return s.QuarterSample
 }
 
-//GetDivxPacked
+//GetDivxPacked ...
 func (s Streams) GetDivxPacked() string {
 	return s.DivxPacked
 }
 
-//GetRFrameRrate
+//GetRFrameRrate ...
 func (s Streams) GetRFrameRrate() string {
 	return s.RFrameRrate
 }
 
-//GetAvgFrameRate
+//GetAvgFrameRate ...
 func (s Streams) GetAvgFrameRate() string {
 	return s.AvgFrameRate
 }
 
-//GetTimeBase
+//GetTimeBase ...
 func (s Streams) GetTimeBase() string {
 	return s.TimeBase
 }
 
-//GetDurationTs
+//GetDurationTs ...
 func (s Streams) GetDurationTs() int {
 	return s.DurationTs
 }
 
-//GetDuration
+//GetDuration ...
 func (s Streams) GetDuration() string {
 	return s.Duration
 }
 
-//GetDisposition
+//GetDisposition ...
 func (s Streams) GetDisposition() transcoder.Disposition {
 	return s.Disposition
 }
 
-//GetBitRate
+//GetBitRate ...
 func (s Streams) GetBitRate() string {
 	return s.BitRate
 }
 
-//GetDefault
+//GetDefault ...
 func (d Disposition) GetDefault() int {
 	return d.Default
 }
 
-//GetDub
+//GetDub ...
 func (d Disposition) GetDub() int {
 	return d.Dub
 }
 
-//GetOriginal
+//GetOriginal ...
 func (d Disposition) GetOriginal() int {
 	return d.Original
 }
 
-//GetComment
+//GetComment ...
 func (d Disposition) GetComment() int {
 	return d.Comment
 }
 
-//GetLyrics
+//GetLyrics ...
 func (d Disposition) GetLyrics() int {
 	return d.Lyrics
 }
 
-//GetKaraoke
+//GetKaraoke ...
 func (d Disposition) GetKaraoke() int {
 	return d.Karaoke
 }
 
-//GetForced
+//GetForced ...
 func (d Disposition) GetForced() int {
 	return d.Forced
 }
 
-//GetHearingImpaired
+//GetHearingImpaired ...
 func (d Disposition) GetHearingImpaired() int {
 	return d.HearingImpaired
 }
 
-//GetVisualImpaired
+//GetVisualImpaired ...
 func (d Disposition) GetVisualImpaired() int {
 	return d.VisualImpaired
 }
 
-//GetCleanEffects
+//GetCleanEffects ...
 func (d Disposition) GetCleanEffects() int {
 	return d.CleanEffects
 }
