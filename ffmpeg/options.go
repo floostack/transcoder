@@ -102,6 +102,10 @@ func (opts Options) GetStrArguments() []string {
 					values = append(values, flag, fmt.Sprintf("%v:%v", k, v))
 				}
 			}
+			
+			if vi, ok := value.(*int); ok {
+				values = append(values, flag, fmt.Sprintf("%d", *vi))
+			}
 
 		}
 	}
