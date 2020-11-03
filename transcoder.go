@@ -1,6 +1,8 @@
 package transcoder
 
-import "io"
+import (
+	"io"
+)
 
 // Transcoder ...
 type Transcoder interface {
@@ -11,4 +13,5 @@ type Transcoder interface {
 	OutputPipe(w *io.WriteCloser, r *io.ReadCloser) Transcoder
 	WithOptions(opts Options) Transcoder
 	WithAdditionalOptions(opts Options) Transcoder
+	GetMetadata() (Metadata, error)
 }
