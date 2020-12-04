@@ -27,6 +27,7 @@ type Streams interface {
 	GetCodecName() string
 	GetCodecLongName() string
 	GetProfile() string
+	GetNbChannels() int
 	GetCodecType() string
 	GetCodecTimeBase() string
 	GetCodecTagString() string

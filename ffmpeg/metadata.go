@@ -29,6 +29,7 @@ type Streams struct {
 	CodecName          string      `json:"codec_name"`
 	CodecLongName      string      `json:"codec_long_name"`
 	Profile            string      `json:"profile"`
+	Channels           int		   `json:"channels"`
 	CodecType          string      `json:"codec_type"`
 	CodecTimeBase      string      `json:"codec_time_base"`
 	CodecTagString     string      `json:"codec_tag_string"`
@@ -165,6 +166,11 @@ func (s Streams) GetCodecLongName() string {
 //GetProfile ...
 func (s Streams) GetProfile() string {
 	return s.Profile
+}
+
+//GetNbChannels returns number of channels for the stream
+func (s Streams) GetNbChannels() int {
+	return s.Channels
 }
 
 //GetCodecType ...
