@@ -65,6 +65,7 @@ type Options struct {
 	PixFmt                *string           `flag:"-pix_fmt"`
 	WhiteListProtocols    []string          `flag:"-protocol_whitelist"`
 	Overwrite             *bool             `flag:"-y"`
+	MapChannel            *string           `flag:"-map_channel"`
 	ExtraArgs             map[string]interface{}
 }
 
@@ -102,7 +103,7 @@ func (opts Options) GetStrArguments() []string {
 					values = append(values, flag, fmt.Sprintf("%v:%v", k, v))
 				}
 			}
-			
+
 			if vi, ok := value.(*int); ok {
 				values = append(values, flag, fmt.Sprintf("%d", *vi))
 			}
