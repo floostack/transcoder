@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"regexp"
@@ -56,9 +57,18 @@ func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress,
 	}
 
 	// Append input file and standard options
-	args := append([]string{"-i", t.input}, opts.GetStrArguments()...)
+	progressOpts := []string{"-loglevel", "error", "-nostats", "-progress", "-"}
+	defaultOpts := []string{"-i", t.input}
+
+	args := []string{}
+	args = append(args, progressOpts...)
+	args = append(args, defaultOpts...)
+
+	args = append(args, opts.GetStrArguments()...)
 	outputLength := len(t.output)
 	optionsLength := len(t.options)
+
+
 
 	if outputLength == 1 && optionsLength == 0 {
 		// Just append the 1 output file we've got
@@ -81,16 +91,21 @@ func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress,
 		}
 	}
 
+	//progressOpts := []string{"-loglevel panic", "-nostats", "-progress -"}
+	//args = append(args, progressOpts...)
+	//a := strings.Join(args, " ")
+	//print(a)
 	// Initialize command
 	cmd := exec.Command(t.config.FfmpegBinPath, args...)
 
 	// If progresss enabled, get stderr pipe and start progress process
 	if t.config.ProgressEnabled && !t.config.Verbose {
-		stderrIn, err = cmd.StderrPipe()
+		stderrIn, err = cmd.StdoutPipe()
 		if err != nil {
 			return nil, fmt.Errorf("Failed getting transcoding progress (%s) with args (%s) with error %s", t.config.FfmpegBinPath, args, err)
 		}
 	}
+
 
 	if t.config.Verbose {
 		cmd.Stderr = os.Stdout
@@ -105,6 +120,7 @@ func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress,
 	if t.config.ProgressEnabled && !t.config.Verbose {
 		go func() {
 			t.progress(stderrIn, out)
+			//t.progress2(stderrIn)
 		}()
 
 		go func() {
@@ -116,6 +132,11 @@ func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress,
 	}
 
 	return out, nil
+}
+
+func (t *Transcoder) progress2(stream io.ReadCloser) {
+	msg, _ := ioutil.ReadAll(stream)
+	fmt.Printf("%s\n", msg)
 }
 
 // Input ...
@@ -258,9 +279,13 @@ func (t *Transcoder) progress(stream io.ReadCloser, out chan transcoder.Progress
 	buf := make([]byte, 2)
 	scanner.Buffer(buf, bufio.MaxScanTokenSize)
 
+	//var re = regexp.MustCompile(`=\s+`)
+
+	progress := &Progress{}
 	for scanner.Scan() {
 		Progress := new(Progress)
 		line := scanner.Text()
+		//fmt.Println(line)
 
 		if strings.Contains(line, "frame=") && strings.Contains(line, "time=") && strings.Contains(line, "bitrate=") {
 			var re = regexp.MustCompile(`=\s+`)
@@ -310,6 +335,104 @@ func (t *Transcoder) progress(stream io.ReadCloser, out chan transcoder.Progress
 			Progress.Speed = currentSpeed
 
 			out <- *Progress
+		}
+
+		/*
+		bitrate= 256.1kbits/s
+		total_size=410220
+		out_time_us=12816000
+		out_time_ms=12816000
+		out_time=00:00:12.816000
+		dup_frames=0
+		drop_frames=0
+		speed= 789x
+		progress=end
+		 */
+
+		if strings.Contains(line, "bitrate=") {
+			//st := re.ReplaceAllString(line, `=`)
+			removedEqualSign := strings.ReplaceAll(line, "=", " ")
+			f := strings.Fields(removedEqualSign)
+
+			progress.CurrentBitrate = f[1]
+		}
+
+		var totalSize int64
+		if strings.Contains(line, "total_size=") {
+			//st := re.ReplaceAllString(line, `=`)
+			removedEqualSign := strings.ReplaceAll(line, "=", " ")
+			f := strings.Fields(removedEqualSign)
+			ts, err := strconv.ParseInt(f[1], 10, 64)
+			if err != nil {
+				totalSize = 0
+			} else {
+				totalSize = ts
+			}
+		}
+
+		if strings.Contains(line, "out_time") {
+			//st := re.ReplaceAllString(line, `=`)
+			removedEqualSign := strings.ReplaceAll(line, "=", " ")
+			f := strings.Fields(removedEqualSign)
+
+			//progress := (timesec * 100) / dursec
+			//ms, err := strconv.ParseInt(f[1], 10, 64)
+			progress.CurrentTime = f[1]
+		}
+
+		if strings.Contains(line, "out_time") {
+			//st := re.ReplaceAllString(line, `=`)
+			removedEqualSign := strings.ReplaceAll(line, "=", " ")
+			f := strings.Fields(removedEqualSign)
+
+			//progress := (timesec * 100) / dursec
+			//ms, err := strconv.ParseInt(f[1], 10, 64)
+			progress.CurrentTime = f[1]
+		}
+
+		if strings.Contains(line, "speed") {
+			//st := re.ReplaceAllString(line, `=`)
+			removedEqualSign := strings.ReplaceAll(line, "=", " ")
+			f := strings.Fields(removedEqualSign)
+
+			//progress := (timesec * 100) / dursec
+			//ms, err := strconv.ParseInt(f[1], 10, 64)
+			progress.Speed = f[1]
+		}
+
+		if strings.Contains(line, "progress") {
+			//st := re.ReplaceAllString(line, `=`)
+			removedEqualSign := strings.ReplaceAll(line, "=", " ")
+			f := strings.Fields(removedEqualSign)
+
+			//progress := (timesec * 100) / dursec
+			//ms, err := strconv.ParseInt(f[1], 10, 64)
+			if len(f) == 2 {
+				if f[1] == "continue" {
+					size, err := strconv.ParseInt(t.metadata.GetFormat().GetSize(), 10, 64)
+					if err != nil {
+						progress.Progress = 0.0
+					} else {
+
+					}
+
+					if totalSize > 0 {
+						progr := (size/totalSize)*100
+						progress.Progress = float64(progr)
+					} else {
+						progress.Progress = 0.0
+					}
+
+				}
+				if f[1] == "end" {
+					progress.Progress = 1.0
+				}
+			} else {
+				progress.Progress = 0.0
+			}
+
+
+			out <- *progress
 		}
 	}
 }
