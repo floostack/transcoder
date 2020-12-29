@@ -97,9 +97,9 @@ func (opts Options) GetStrArguments() []string {
 				}
 			}
 
-			if vm, ok := value.(map[string]string); ok {
+			if vm, ok := value.(map[string]interface{}); ok {
 				for k, v := range vm {
-					values = append(values, flag, fmt.Sprintf("%v:%v", k, v))
+					values = append(values, k, fmt.Sprintf("%v", v))
 				}
 			}
 			
