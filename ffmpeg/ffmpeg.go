@@ -262,7 +262,7 @@ func (t *Transcoder) progress(stream io.ReadCloser, out chan transcoder.Progress
 		Progress := new(Progress)
 		line := scanner.Text()
 
-		if strings.Contains(line, "frame=") && strings.Contains(line, "time=") && strings.Contains(line, "bitrate=") {
+		if strings.Contains(line, "time=") && strings.Contains(line, "bitrate=") {
 			var re = regexp.MustCompile(`=\s+`)
 			st := re.ReplaceAllString(line, `=`)
 
