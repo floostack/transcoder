@@ -1,6 +1,7 @@
 package transcoder
 
 import (
+	"context"
 	"io"
 )
 
@@ -13,5 +14,6 @@ type Transcoder interface {
 	OutputPipe(w *io.WriteCloser, r *io.ReadCloser) Transcoder
 	WithOptions(opts Options) Transcoder
 	WithAdditionalOptions(opts Options) Transcoder
+	WithContext(ctx *context.Context) Transcoder
 	GetMetadata() (Metadata, error)
 }
