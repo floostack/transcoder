@@ -51,6 +51,7 @@ type Streams interface {
 	GetDuration() string
 	GetDisposition() Disposition
 	GetBitRate() string
+	GetTags() map[string]string
 }
 
 // Disposition ...
