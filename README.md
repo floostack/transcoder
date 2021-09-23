@@ -1,26 +1,5 @@
 # Golang Transcoding Library
 
-<br />
-
-<div align="center">
-  <!-- Build status -->
-  <a href="https://circleci.com/gh/floostack/transcoder">
-    <img src="https://circleci.com/gh/floostack/transcoder.svg?style=svg" alt="Build Status" />
-  </a>
-
-  <!-- Code Quality -->
-  <a href="https://www.codacy.com/manual/floostack/transcoder?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=floostack/transcoder&amp;utm_campaign=Badge_Grade">
-    <img src="https://app.codacy.com/project/badge/Grade/f8ee19ef723b4134bb8bb1f9c439959e" alt="Build Status" />
-  </a>
-
-</div>
-
-<br />
-
-<div align="center">
-  <sub>Created by <a href="https://floostack.com">FlooStack</a>.</sub> 
-</div>
-
 ## Features
 
 <dl>
@@ -34,7 +13,7 @@
 ## Download from Github
 
 ```shell
-go get github.com/floostack/transcoder
+go get github.com/legion-zver/transcoder
 ```
 
 ## Example
@@ -45,7 +24,7 @@ package main
 import (
 	"log"
 
-	ffmpeg "github.com/floostack/transcoder/ffmpeg"
+	ffmpeg "github.com/legion-zver/transcoder/ffmpeg"
 )
 
 func main() {
