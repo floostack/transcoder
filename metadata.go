@@ -17,7 +17,7 @@ type Format interface {
 	GetSize() string
 	GetBitRate() string
 	GetProbeScore() int
-	GetTags() Tags
+	GetTags() map[string]string
 }
 
 // Streams ...
@@ -51,11 +51,6 @@ type Streams interface {
 	GetDuration() string
 	GetDisposition() Disposition
 	GetBitRate() string
-}
-
-// Tags ...
-type Tags interface {
-	GetEncoder() string
 }
 
 // Disposition ...

@@ -11,15 +11,15 @@ type Metadata struct {
 // Format ...
 type Format struct {
 	Filename       string
-	NbStreams      int    `json:"nb_streams"`
-	NbPrograms     int    `json:"nb_programs"`
-	FormatName     string `json:"format_name"`
-	FormatLongName string `json:"format_long_name"`
-	Duration       string `json:"duration"`
-	Size           string `json:"size"`
-	BitRate        string `json:"bit_rate"`
-	ProbeScore     int    `json:"probe_score"`
-	Tags           Tags   `json:"tags"`
+	NbStreams      int               `json:"nb_streams"`
+	NbPrograms     int               `json:"nb_programs"`
+	FormatName     string            `json:"format_name"`
+	FormatLongName string            `json:"format_long_name"`
+	Duration       string            `json:"duration"`
+	Size           string            `json:"size"`
+	BitRate        string            `json:"bit_rate"`
+	ProbeScore     int               `json:"probe_score"`
+	Tags           map[string]string `json:"tags"`
 }
 
 // Streams ...
@@ -53,11 +53,6 @@ type Streams struct {
 	Duration           string      `json:"duration"`
 	Disposition        Disposition `json:"disposition"`
 	BitRate            string      `json:"bit_rate"`
-}
-
-// Tags ...
-type Tags struct {
-	Encoder string `json:"ENCODER"`
 }
 
 // Disposition ...
@@ -133,13 +128,8 @@ func (f Format) GetProbeScore() int {
 }
 
 // GetTags ...
-func (f Format) GetTags() transcoder.Tags {
+func (f Format) GetTags() map[string]string {
 	return f.Tags
-}
-
-// GetEncoder ...
-func (t Tags) GetEncoder() string {
-	return t.Encoder
 }
 
 //GetIndex ...

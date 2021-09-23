@@ -70,25 +70,17 @@ type Options struct {
 
 // GetStrArguments ...
 func (opts Options) GetStrArguments() []string {
-	f := reflect.TypeOf(opts)
-	v := reflect.ValueOf(opts)
-
-	values := []string{}
-
+	values, f, v := make([]string, 0), reflect.TypeOf(opts), reflect.ValueOf(opts)
 	for i := 0; i < f.NumField(); i++ {
 		flag := f.Field(i).Tag.Get("flag")
 		value := v.Field(i).Interface()
-
 		if !v.Field(i).IsNil() {
-
 			if _, ok := value.(*bool); ok {
 				values = append(values, flag)
 			}
-
 			if vs, ok := value.(*string); ok {
 				values = append(values, flag, *vs)
 			}
-
 			if va, ok := value.([]string); ok {
 
 				for i := 0; i < len(va); i++ {
@@ -96,19 +88,15 @@ func (opts Options) GetStrArguments() []string {
 					values = append(values, flag, item)
 				}
 			}
-
 			if vm, ok := value.(map[string]interface{}); ok {
 				for k, v := range vm {
 					values = append(values, k, fmt.Sprintf("%v", v))
 				}
 			}
-			
 			if vi, ok := value.(*int); ok {
 				values = append(values, flag, fmt.Sprintf("%d", *vi))
 			}
-
 		}
 	}
-
 	return values
 }

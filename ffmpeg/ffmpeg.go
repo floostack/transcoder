@@ -73,7 +73,7 @@ func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress,
 				for i := index; i < len(t.options); i++ {
 					args = append(args, t.options[i]...)
 				}
-				// Otherwise just append the current options
+				// Other wise just append the current options
 			} else {
 				args = append(args, t.options[index]...)
 			}
@@ -93,30 +93,24 @@ func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress,
 	} else {
 		cmd = exec.CommandContext(*t.commandContext, t.config.FfmpegBinPath, args...)
 	}
-
-	// If progresss enabled, get stderr pipe and start progress process
+	// If progress enabled, get stderr pipe and start progress process
 	if t.config.ProgressEnabled && !t.config.Verbose {
 		stderrIn, err = cmd.StderrPipe()
 		if err != nil {
 			return nil, fmt.Errorf("Failed getting transcoding progress (%s) with args (%s) with error %s", t.config.FfmpegBinPath, args, err)
 		}
 	}
-
 	if t.config.Verbose {
 		cmd.Stderr = os.Stdout
 	}
-
 	// Start process
-	err = cmd.Start()
-	if err != nil {
+	if err = cmd.Start(); err != nil {
 		return nil, fmt.Errorf("Failed starting transcoding (%s) with args (%s) with error %s", t.config.FfmpegBinPath, args, err)
 	}
-
 	if t.config.ProgressEnabled && !t.config.Verbose {
 		go func() {
 			t.progress(stderrIn, out)
 		}()
-
 		go func() {
 			defer close(out)
 			err = cmd.Wait()
@@ -124,7 +118,6 @@ func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress,
 	} else {
 		err = cmd.Wait()
 	}
-
 	return out, nil
 }
 
@@ -248,9 +241,11 @@ func (t *Transcoder) GetMetadata() (transcoder.Metadata, error) {
 
 // progress sends through given channel the transcoding status
 func (t *Transcoder) progress(stream io.ReadCloser, out chan transcoder.Progress) {
-
-	defer stream.Close()
-
+	defer func(stream io.ReadCloser) {
+		if err := stream.Close(); err != nil {
+			fmt.Println(err)
+		}
+	}(stream)
 	split := func(data []byte, atEOF bool) (advance int, token []byte, spliterror error) {
 		if atEOF && len(data) == 0 {
 			return 0, nil, nil
@@ -266,7 +261,6 @@ func (t *Transcoder) progress(stream io.ReadCloser, out chan transcoder.Progress
 		if atEOF {
 			return len(data), data, nil
 		}
-
 		return 0, nil, nil
 	}
 
@@ -277,8 +271,7 @@ func (t *Transcoder) progress(stream io.ReadCloser, out chan transcoder.Progress
 	scanner.Buffer(buf, bufio.MaxScanTokenSize)
 
 	for scanner.Scan() {
-		Progress := new(Progress)
-		line := scanner.Text()
+		p, line := new(Progress), scanner.Text()
 
 		if strings.Contains(line, "time=") && strings.Contains(line, "bitrate=") {
 			var re = regexp.MustCompile(`=\s+`)
@@ -294,40 +287,33 @@ func (t *Transcoder) progress(stream io.ReadCloser, out chan transcoder.Progress
 			for j := 0; j < len(f); j++ {
 				field := f[j]
 				fieldSplit := strings.Split(field, "=")
-
 				if len(fieldSplit) > 1 {
-					fieldname := strings.Split(field, "=")[0]
-					fieldvalue := strings.Split(field, "=")[1]
-
-					if fieldname == "frame" {
-						framesProcessed = fieldvalue
+					fieldName, fieldValue := strings.Split(field, "=")[0], strings.Split(field, "=")[1]
+					if fieldName == "frame" {
+						framesProcessed = fieldValue
 					}
-
-					if fieldname == "time" {
-						currentTime = fieldvalue
+					if fieldName == "time" {
+						currentTime = fieldValue
 					}
-
-					if fieldname == "bitrate" {
-						currentBitrate = fieldvalue
+					if fieldName == "bitrate" {
+						currentBitrate = fieldValue
 					}
-					if fieldname == "speed" {
-						currentSpeed = fieldvalue
+					if fieldName == "speed" {
+						currentSpeed = fieldValue
 					}
 				}
 			}
 
-			timesec := utils.DurToSec(currentTime)
-			dursec, _ := strconv.ParseFloat(t.metadata.GetFormat().GetDuration(), 64)
+			timeSec := utils.DurToSec(currentTime)
+			durSec, _ := strconv.ParseFloat(t.metadata.GetFormat().GetDuration(), 64)
 
-			progress := (timesec * 100) / dursec
-			Progress.Progress = progress
+			p.Progress = (timeSec * 100) / durSec
+			p.CurrentBitrate = currentBitrate
+			p.FramesProcessed = framesProcessed
+			p.CurrentTime = currentTime
+			p.Speed = currentSpeed
 
-			Progress.CurrentBitrate = currentBitrate
-			Progress.FramesProcessed = framesProcessed
-			Progress.CurrentTime = currentTime
-			Progress.Speed = currentSpeed
-
-			out <- *Progress
+			out <- *p
 		}
 	}
 }
@@ -336,11 +322,11 @@ func (t *Transcoder) progress(stream io.ReadCloser, out chan transcoder.Progress
 func (t *Transcoder) closePipes() {
 	if t.inputPipeReader != nil {
 		ipr := *t.inputPipeReader
-		ipr.Close()
+		_ = ipr.Close()
 	}
 
 	if t.outputPipeWriter != nil {
 		opr := *t.outputPipeWriter
-		opr.Close()
+		_ = opr.Close()
 	}
 }
