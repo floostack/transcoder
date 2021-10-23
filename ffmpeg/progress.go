@@ -7,6 +7,7 @@ type Progress struct {
 	CurrentBitrate  string
 	Progress        float64
 	Speed           string
+	Error           error
 }
 
 // GetFramesProcessed ...
@@ -32,4 +33,9 @@ func (p Progress) GetProgress() float64 {
 // GetSpeed ...
 func (p Progress) GetSpeed() string {
 	return p.Speed
+}
+
+// GetError ...
+func (p Progress) GetError() error {
+	return p.Error
 }
