@@ -113,12 +113,14 @@ func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress,
 		}()
 		go func() {
 			defer close(out)
-			err = cmd.Wait()
+			if err = cmd.Wait(); err != nil {
+				out <- Progress{Error: err}
+			}
 		}()
 	} else {
 		err = cmd.Wait()
 	}
-	return out, nil
+	return out, err
 }
 
 // Input ...
@@ -241,17 +243,9 @@ func (t *Transcoder) GetMetadata() (transcoder.Metadata, error) {
 
 // progress sends through given channel the transcoding status
 func (t *Transcoder) progress(stream io.ReadCloser, out chan transcoder.Progress) {
-	progress := float64(0)
-	defer func(stream io.ReadCloser, progress *float64) {
-		if err := stream.Close(); err != nil {
-			if progress != nil {
-				out <- Progress{
-					Progress: *progress,
-					Error:    err,
-				}
-			}
-		}
-	}(stream, &progress)
+	defer func(stream io.ReadCloser) {
+		_ = stream.Close()
+	}(stream)
 	split := func(data []byte, atEOF bool) (advance int, token []byte, spliterror error) {
 		if atEOF && len(data) == 0 {
 			return 0, nil, nil
@@ -317,8 +311,6 @@ func (t *Transcoder) progress(stream io.ReadCloser, out chan transcoder.Progress
 			p.FramesProcessed = framesProcessed
 			p.CurrentTime = currentTime
 			p.Speed = currentSpeed
-
-			progress = p.Progress
 
 			out <- *p
 		}
