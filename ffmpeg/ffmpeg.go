@@ -241,11 +241,17 @@ func (t *Transcoder) GetMetadata() (transcoder.Metadata, error) {
 
 // progress sends through given channel the transcoding status
 func (t *Transcoder) progress(stream io.ReadCloser, out chan transcoder.Progress) {
-	defer func(stream io.ReadCloser) {
+	progress := float64(0)
+	defer func(stream io.ReadCloser, progress *float64) {
 		if err := stream.Close(); err != nil {
-			fmt.Println(err)
+			if progress != nil {
+				out <- Progress{
+					Progress: *progress,
+					Error:    err,
+				}
+			}
 		}
-	}(stream)
+	}(stream, &progress)
 	split := func(data []byte, atEOF bool) (advance int, token []byte, spliterror error) {
 		if atEOF && len(data) == 0 {
 			return 0, nil, nil
@@ -272,8 +278,6 @@ func (t *Transcoder) progress(stream io.ReadCloser, out chan transcoder.Progress
 
 	for scanner.Scan() {
 		p, line := new(Progress), scanner.Text()
-
-		fmt.Println(line)
 		if strings.Contains(line, "time=") && strings.Contains(line, "bitrate=") {
 			var re = regexp.MustCompile(`=\s+`)
 			st := re.ReplaceAllString(line, `=`)
@@ -313,6 +317,8 @@ func (t *Transcoder) progress(stream io.ReadCloser, out chan transcoder.Progress
 			p.FramesProcessed = framesProcessed
 			p.CurrentTime = currentTime
 			p.Speed = currentSpeed
+
+			progress = p.Progress
 
 			out <- *p
 		}
