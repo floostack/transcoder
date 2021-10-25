@@ -97,7 +97,7 @@ func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress,
 	if t.config.ProgressEnabled && !t.config.Verbose {
 		stderrIn, err = cmd.StderrPipe()
 		if err != nil {
-			return nil, fmt.Errorf("Failed getting transcoding progress (%s) with args (%s) with error %s", t.config.FfmpegBinPath, args, err)
+			return nil, fmt.Errorf("failed getting transcoding progress (%s) with args (%s) with error %s", t.config.FfmpegBinPath, args, err)
 		}
 	}
 	if t.config.Verbose {
@@ -105,7 +105,7 @@ func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress,
 	}
 	// Start process
 	if err = cmd.Start(); err != nil {
-		return nil, fmt.Errorf("Failed starting transcoding (%s) with args (%s) with error %s", t.config.FfmpegBinPath, args, err)
+		return nil, fmt.Errorf("failed starting transcoding (%s) with args (%s) with error %s", t.config.FfmpegBinPath, args, err)
 	}
 	if t.config.ProgressEnabled && !t.config.Verbose {
 		go func() {
@@ -113,7 +113,7 @@ func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress,
 		}()
 		go func() {
 			defer close(out)
-			if err = cmd.Wait(); err != nil {
+			if err = cmd.Wait(); err != nil && !strings.HasPrefix(err.Error(), "exit status") {
 				out <- Progress{Error: err}
 			}
 		}()
@@ -208,31 +208,35 @@ func (t *Transcoder) validate() error {
 func (t *Transcoder) GetMetadata() (transcoder.Metadata, error) {
 
 	if t.config.FfprobeBinPath != "" {
+		//goland:noinspection SpellCheckingInspection
 		var outb, errb bytes.Buffer
 
 		input := t.input
-
 		if t.inputPipeReader != nil {
 			input = "pipe:"
 		}
 
 		args := []string{"-i", input, "-print_format", "json", "-show_format", "-show_streams", "-show_error"}
-
 		cmd := exec.Command(t.config.FfprobeBinPath, args...)
 		cmd.Stdout = &outb
 		cmd.Stderr = &errb
 
 		err := cmd.Run()
 		if err != nil {
+			if t.config.Debug {
+				fmt.Println(outb.String())
+				fmt.Println(errb.String())
+			}
 			return nil, fmt.Errorf("error executing (%s) with args (%s) | error: %s | message: %s %s", t.config.FfprobeBinPath, args, err, outb.String(), errb.String())
+		}
+		if t.config.Debug {
+			fmt.Println(outb.String())
 		}
 
 		var metadata Metadata
-
 		if err = json.Unmarshal([]byte(outb.String()), &metadata); err != nil {
 			return nil, err
 		}
-
 		t.metadata = metadata
 
 		return metadata, nil
@@ -272,6 +276,9 @@ func (t *Transcoder) progress(stream io.ReadCloser, out chan transcoder.Progress
 
 	for scanner.Scan() {
 		p, line := new(Progress), scanner.Text()
+		if t.config.Debug {
+			fmt.Println(line)
+		}
 		if strings.Contains(line, "time=") && strings.Contains(line, "bitrate=") {
 			var re = regexp.MustCompile(`=\s+`)
 			st := re.ReplaceAllString(line, `=`)
