@@ -22,6 +22,7 @@ import (
 type Transcoder struct {
 	config           *Config
 	input            string
+	errors           []string
 	output           []string
 	options          [][]string
 	metadata         transcoder.Metadata
@@ -30,37 +31,57 @@ type Transcoder struct {
 	inputPipeWriter  *io.WriteCloser
 	outputPipeWriter *io.WriteCloser
 	commandContext   *context.Context
+	skipMetadata     bool
 }
 
 // New ...
 func New(cfg *Config) transcoder.Transcoder {
-	return &Transcoder{config: cfg}
+	return &Transcoder{config: cfg, errors: []string{}}
+}
+
+// Errors ...
+func (t *Transcoder) Error() (err error) {
+	if t.errors == nil || len(t.errors) < 1 {
+		return
+	}
+	return errors.New(strings.Join(t.errors, " |--> "))
+}
+
+// SkipMetadata ...
+func (t *Transcoder) SkipMetadata() transcoder.Transcoder {
+	t.skipMetadata = true
+	return t
 }
 
 // Start ...
 func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress, error) {
-
-	var stderrIn io.ReadCloser
-
-	out := make(chan transcoder.Progress)
-
+	if opts == nil {
+		opts = Options{}
+	}
 	defer t.closePipes()
+
+	// Clear errors
+	t.errors = []string{}
 
 	// Validates config
 	if err := t.validate(); err != nil {
+		t.errors = append(t.errors, err.Error())
 		return nil, err
 	}
 
 	// Get file metadata
-	_, err := t.GetMetadata()
-	if err != nil {
-		return nil, err
+	if !t.skipMetadata {
+		if _, err := t.GetMetadata(); err != nil {
+			t.errors = append(t.errors, err.Error())
+			return nil, err
+		}
 	}
 
 	// Append input file and standard options
-	args := append([]string{"-i", t.input}, opts.GetStrArguments()...)
-	outputLength := len(t.output)
-	optionsLength := len(t.options)
+	args, outputLength, optionsLength := append(
+		[]string{"-hide_banner", "-i", t.input},
+		opts.GetStrArguments()...,
+	), len(t.output), len(t.options)
 
 	if outputLength == 1 && optionsLength == 0 {
 		// Just append the 1 output file we've got
@@ -77,7 +98,6 @@ func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress,
 			} else {
 				args = append(args, t.options[index]...)
 			}
-
 			// Append output flag
 			args = append(args, out)
 		}
@@ -94,9 +114,14 @@ func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress,
 		cmd = exec.CommandContext(*t.commandContext, t.config.FfmpegBinPath, args...)
 	}
 	// If progress enabled, get stderr pipe and start progress process
-	if t.config.ProgressEnabled && !t.config.Verbose {
+	var (
+		stderrIn io.ReadCloser
+		err      error
+	)
+	if t.config.Progress && !t.config.Verbose {
 		stderrIn, err = cmd.StderrPipe()
 		if err != nil {
+			t.errors = append(t.errors, err.Error())
 			return nil, fmt.Errorf("failed getting transcoding progress (%s) with args (%s) with error %s", t.config.FfmpegBinPath, args, err)
 		}
 	}
@@ -107,19 +132,22 @@ func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress,
 	if err = cmd.Start(); err != nil {
 		return nil, fmt.Errorf("failed starting transcoding (%s) with args (%s) with error %s", t.config.FfmpegBinPath, args, err)
 	}
-	if t.config.ProgressEnabled && !t.config.Verbose {
-		go func() {
-			t.progress(stderrIn, out)
-		}()
-		go func() {
-			defer close(out)
-			if err = cmd.Wait(); err != nil && !strings.HasPrefix(err.Error(), "exit status") {
-				out <- Progress{Error: err}
-			}
-		}()
-	} else {
-		err = cmd.Wait()
+	if !t.config.Progress || t.config.Verbose {
+		if err = cmd.Wait(); err != nil {
+			t.errors = append(t.errors, err.Error())
+		}
+		return nil, err
 	}
+	out := make(chan transcoder.Progress)
+	go func() {
+		t.progress(stderrIn, out)
+	}()
+	go func() {
+		defer close(out)
+		if err := cmd.Wait(); err != nil {
+			t.errors = append(t.errors, err.Error())
+		}
+	}()
 	return out, err
 }
 
@@ -178,13 +206,10 @@ func (t *Transcoder) validate() error {
 	if t.config.FfmpegBinPath == "" {
 		return errors.New("ffmpeg binary path not found")
 	}
-
 	if t.input == "" {
 		return errors.New("missing input option")
 	}
-
 	outputLength := len(t.output)
-
 	if outputLength == 0 {
 		return errors.New("missing output option")
 	}
@@ -194,59 +219,50 @@ func (t *Transcoder) validate() error {
 	if outputLength > len(t.options) && outputLength != 1 {
 		return errors.New("number of options and output files does not match")
 	}
-
 	for index, output := range t.output {
 		if output == "" {
 			return fmt.Errorf("output at index %d is an empty string", index)
 		}
 	}
-
 	return nil
 }
 
 // GetMetadata Returns metadata for the specified input file
 func (t *Transcoder) GetMetadata() (transcoder.Metadata, error) {
-
-	if t.config.FfprobeBinPath != "" {
-		//goland:noinspection SpellCheckingInspection
-		var outb, errb bytes.Buffer
-
-		input := t.input
-		if t.inputPipeReader != nil {
-			input = "pipe:"
-		}
-
-		args := []string{"-i", input, "-print_format", "json", "-show_format", "-show_streams", "-show_error"}
-		cmd := exec.Command(t.config.FfprobeBinPath, args...)
-		cmd.Stdout = &outb
-		cmd.Stderr = &errb
-
-		err := cmd.Run()
-		if err != nil {
-			if t.config.Debug {
-				fmt.Println(outb.String())
-				fmt.Println(errb.String())
-			}
-			return nil, fmt.Errorf("error executing (%s) with args (%s) | error: %s | message: %s %s", t.config.FfprobeBinPath, args, err, outb.String(), errb.String())
-		}
-		if t.config.Debug {
-			fmt.Println(outb.String())
-		}
-
-		var metadata Metadata
-		if err = json.Unmarshal([]byte(outb.String()), &metadata); err != nil {
-			return nil, err
-		}
-		t.metadata = metadata
-
-		return metadata, nil
+	if len(t.config.FfprobeBinPath) < 1 {
+		return nil, errors.New("ffprobe binary not found")
 	}
+	input := t.input
+	if t.inputPipeReader != nil {
+		input = "pipe:"
+	}
+	var stdOut, stdErr bytes.Buffer
+	args := []string{"-hide_banner", "-i", input, "-print_format", "json", "-show_format", "-show_streams", "-show_error"}
+	cmd := exec.Command(t.config.FfprobeBinPath, args...)
+	cmd.Stdout = &stdOut
+	cmd.Stderr = &stdErr
 
-	return nil, errors.New("ffprobe binary not found")
+	if err := cmd.Run(); err != nil {
+		if t.config.Debug {
+			fmt.Println(stdOut.String())
+			fmt.Println(stdErr.String())
+		}
+		return nil, fmt.Errorf("error executing (%s) with args (%s) | error: %s | message: %s %s", t.config.FfprobeBinPath, args, err, stdOut.String(), stdErr.String())
+	}
+	var metadata Metadata
+	if err := json.Unmarshal([]byte(stdOut.String()), &metadata); err != nil {
+		return nil, err
+	}
+	t.metadata = metadata
+	return metadata, nil
+
 }
 
 // progress sends through given channel the transcoding status
 func (t *Transcoder) progress(stream io.ReadCloser, out chan transcoder.Progress) {
+	if stream == nil {
+		return
+	}
 	defer func(stream io.ReadCloser) {
 		_ = stream.Close()
 	}(stream)
@@ -274,22 +290,23 @@ func (t *Transcoder) progress(stream io.ReadCloser, out chan transcoder.Progress
 	buf := make([]byte, 2)
 	scanner.Buffer(buf, bufio.MaxScanTokenSize)
 
+	re := regexp.MustCompile(`=\s+`)
 	for scanner.Scan() {
-		p, line := new(Progress), scanner.Text()
+		line := scanner.Text()
+		if len(line) < 1 {
+			continue
+		}
 		if t.config.Debug {
 			fmt.Println(line)
 		}
 		if strings.Contains(line, "time=") && strings.Contains(line, "bitrate=") {
-			var re = regexp.MustCompile(`=\s+`)
-			st := re.ReplaceAllString(line, `=`)
-
-			f := strings.Fields(st)
-
-			var framesProcessed string
-			var currentTime string
-			var currentBitrate string
-			var currentSpeed string
-
+			f := strings.Fields(re.ReplaceAllString(line, `=`))
+			var (
+				framesProcessed string
+				currentBitrate  string
+				currentSpeed    string
+				currentTime     string
+			)
 			for j := 0; j < len(f); j++ {
 				field := f[j]
 				fieldSplit := strings.Split(field, "=")
@@ -309,17 +326,21 @@ func (t *Transcoder) progress(stream io.ReadCloser, out chan transcoder.Progress
 					}
 				}
 			}
-
 			timeSec := utils.DurToSec(currentTime)
 			durSec, _ := strconv.ParseFloat(t.metadata.GetFormat().GetDuration(), 64)
-
-			p.Progress = (timeSec * 100) / durSec
-			p.CurrentBitrate = currentBitrate
-			p.FramesProcessed = framesProcessed
-			p.CurrentTime = currentTime
-			p.Speed = currentSpeed
-
-			out <- *p
+			out <- Progress{
+				Progress:        (timeSec * 100) / durSec,
+				CurrentBitrate:  currentBitrate,
+				FramesProcessed: framesProcessed,
+				CurrentTime:     currentTime,
+				Speed:           currentSpeed,
+			}
+			continue
+		} else if strings.HasPrefix(line, "Error") ||
+			strings.HasPrefix(line, "Unrecognized option") ||
+			(strings.Contains(line, "[y/N]") &&
+				strings.Contains(line, "exiting")) {
+			t.errors = append(t.errors, strings.TrimSuffix(line, "."))
 		}
 	}
 }

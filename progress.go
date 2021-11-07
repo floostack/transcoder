@@ -7,5 +7,4 @@ type Progress interface {
 	GetCurrentBitrate() string
 	GetProgress() float64
 	GetSpeed() string
-	GetError() error
 }
