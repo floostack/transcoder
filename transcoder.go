@@ -15,6 +15,7 @@ type Transcoder interface {
 	WithOptions(opts Options) Transcoder
 	WithAdditionalOptions(opts Options) Transcoder
 	WithContext(ctx *context.Context) Transcoder
+	WithMetadata(metadata Metadata) Transcoder
 	SkipMetadata() Transcoder
 	GetMetadata() (Metadata, error)
 	Error() error

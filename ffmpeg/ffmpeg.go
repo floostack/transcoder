@@ -31,7 +31,7 @@ type Transcoder struct {
 	inputPipeWriter  *io.WriteCloser
 	outputPipeWriter *io.WriteCloser
 	commandContext   *context.Context
-	skipMetadata     bool
+	skipGetMetadata  bool
 }
 
 // New ...
@@ -49,7 +49,14 @@ func (t *Transcoder) Error() (err error) {
 
 // SkipMetadata ...
 func (t *Transcoder) SkipMetadata() transcoder.Transcoder {
-	t.skipMetadata = true
+	t.skipGetMetadata = true
+	return t
+}
+
+// WithMetadata ...
+func (t *Transcoder) WithMetadata(metadata transcoder.Metadata) transcoder.Transcoder {
+	t.skipGetMetadata = true
+	t.metadata = metadata
 	return t
 }
 
@@ -70,7 +77,7 @@ func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress,
 	}
 
 	// Get file metadata
-	if !t.skipMetadata {
+	if !t.skipGetMetadata {
 		if _, err := t.GetMetadata(); err != nil {
 			t.errors = append(t.errors, err.Error())
 			return nil, err
@@ -94,7 +101,7 @@ func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress,
 				for i := index; i < len(t.options); i++ {
 					args = append(args, t.options[i]...)
 				}
-				// Other wise just append the current options
+				// Otherwise, just append the current options
 			} else {
 				args = append(args, t.options[index]...)
 			}
@@ -327,9 +334,14 @@ func (t *Transcoder) progress(stream io.ReadCloser, out chan transcoder.Progress
 				}
 			}
 			timeSec := utils.DurToSec(currentTime)
-			durSec, _ := strconv.ParseFloat(t.metadata.GetFormat().GetDuration(), 64)
+			progress := timeSec
+			if t.metadata != nil {
+				if durSec, _ := strconv.ParseFloat(t.metadata.GetFormat().GetDuration(), 64); durSec != 0 {
+					progress = (timeSec * 100) / durSec
+				}
+			}
 			out <- Progress{
-				Progress:        (timeSec * 100) / durSec,
+				Progress:        progress,
 				CurrentBitrate:  currentBitrate,
 				FramesProcessed: framesProcessed,
 				CurrentTime:     currentTime,
