@@ -22,8 +22,9 @@ import (
 type Transcoder struct {
 	config           *Config
 	input            string
-	errors           []string
+	start            []string
 	output           []string
+	errors           []string
 	options          [][]string
 	metadata         transcoder.Metadata
 	inputPipeReader  *io.ReadCloser
@@ -36,7 +37,7 @@ type Transcoder struct {
 
 // New ...
 func New(cfg *Config) transcoder.Transcoder {
-	return &Transcoder{config: cfg, errors: []string{}}
+	return &Transcoder{config: cfg, errors: []string{}, start: []string{}}
 }
 
 // Errors ...
@@ -86,12 +87,16 @@ func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress,
 
 	// Append input file and standard options
 	args, outputLength, optionsLength := append(
-		[]string{"-hide_banner", "-i", t.input},
-		opts.GetStrArguments()...,
+		append(
+			append(
+				[]string{}, t.start...,
+			),
+			[]string{"-hide_banner", "-i", t.input}...,
+		), opts.GetStrArguments()...,
 	), len(t.output), len(t.options)
 
+	// Just append the 1 output file we've got
 	if outputLength == 1 && optionsLength == 0 {
-		// Just append the 1 output file we've got
 		args = append(args, t.output[0])
 	} else {
 		for index, out := range t.output {
@@ -188,6 +193,12 @@ func (t *Transcoder) OutputPipe(w *io.WriteCloser, r *io.ReadCloser) transcoder.
 	return t
 }
 
+// WithStartOptions Sets the start options object
+func (t *Transcoder) WithStartOptions(opts transcoder.Options) transcoder.Transcoder {
+	t.start = opts.GetStrArguments()
+	return t
+}
+
 // WithOptions Sets the options object
 func (t *Transcoder) WithOptions(opts transcoder.Options) transcoder.Transcoder {
 	t.options = [][]string{opts.GetStrArguments()}
@@ -196,7 +207,19 @@ func (t *Transcoder) WithOptions(opts transcoder.Options) transcoder.Transcoder 
 
 // WithAdditionalOptions Appends an additional options object
 func (t *Transcoder) WithAdditionalOptions(opts transcoder.Options) transcoder.Transcoder {
+	if t.options == nil {
+		return t.WithOptions(opts)
+	}
 	t.options = append(t.options, opts.GetStrArguments())
+	return t
+}
+
+// WithAdditionalStartOptions Appends an additional start options object
+func (t *Transcoder) WithAdditionalStartOptions(opts transcoder.Options) transcoder.Transcoder {
+	if t.start == nil {
+		return t.WithStartOptions(opts)
+	}
+	t.start = append(t.start, opts.GetStrArguments()...)
 	return t
 }
 
@@ -262,7 +285,6 @@ func (t *Transcoder) GetMetadata() (transcoder.Metadata, error) {
 	}
 	t.metadata = metadata
 	return metadata, nil
-
 }
 
 // progress sends through given channel the transcoding status
@@ -363,7 +385,6 @@ func (t *Transcoder) closePipes() {
 		ipr := *t.inputPipeReader
 		_ = ipr.Close()
 	}
-
 	if t.outputPipeWriter != nil {
 		opr := *t.outputPipeWriter
 		_ = opr.Close()
