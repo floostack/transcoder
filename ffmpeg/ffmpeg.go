@@ -125,6 +125,10 @@ func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress,
 	} else {
 		cmd = exec.CommandContext(*t.commandContext, t.config.FfmpegBinPath, args...)
 	}
+	// Print debug
+	if t.config.Debug {
+		fmt.Println("transcoder.Start", t.config.FfmpegBinPath, args)
+	}
 	// If progress enabled, get stderr pipe and start progress process
 	var (
 		stderrIn io.ReadCloser
@@ -271,7 +275,10 @@ func (t *Transcoder) GetMetadata() (transcoder.Metadata, error) {
 	cmd := exec.Command(t.config.FfprobeBinPath, args...)
 	cmd.Stdout = &stdOut
 	cmd.Stderr = &stdErr
-
+	// Print debug info
+	if t.config.Debug {
+		fmt.Println("transcoder.GetMetadata", t.config.FfprobeBinPath, args)
+	}
 	if err := cmd.Run(); err != nil {
 		if t.config.Debug {
 			fmt.Println(stdOut.String())
