@@ -156,10 +156,10 @@ func (t *Transcoder) Start(opts transcoder.Options) (<-chan transcoder.Progress,
 	}
 	out := make(chan transcoder.Progress)
 	go func() {
+		defer close(out)
 		t.progress(stderrIn, out)
 	}()
 	go func() {
-		defer close(out)
 		if err := cmd.Wait(); err != nil {
 			t.errors = append(t.errors, err.Error())
 		}
