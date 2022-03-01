@@ -50,10 +50,19 @@ import (
 
 func main() {
 
+
+	hwaccel := "cuvid"
+	videoCodec := "h264_cuvid"
+
+	inputOpts := ffmpeg.Options{
+		Hwaccel:      &hwaccel,
+		VideoCodec:   &videoCodec,
+	}
+	
 	format := "mp4"
 	overwrite := true
 
-	opts := ffmpeg.Options{
+	outputOpts := ffmpeg.Options{
 		OutputFormat: &format,
 		Overwrite:    &overwrite,
 	}
@@ -68,8 +77,9 @@ func main() {
 		New(ffmpegConf).
 		Input("/tmp/avi").
 		Output("/tmp/mp4").
-		WithOptions(opts).
-		Start(opts)
+		WithInputOptions(inputOpts).
+		WithOutputOptions(outputOpts).
+		Start()
 
 	if err != nil {
 		log.Fatal(err)
