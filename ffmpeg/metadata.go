@@ -53,6 +53,8 @@ type Streams struct {
 	Duration           string      `json:"duration"`
 	Disposition        Disposition `json:"disposition"`
 	BitRate            string      `json:"bit_rate"`
+	SampleRate         string      `json:"sample_rate"`
+	BitsPerSample      string      `json:"bits_per_sample"`
 }
 
 // Tags ...
@@ -285,6 +287,14 @@ func (s Streams) GetDisposition() transcoder.Disposition {
 //GetBitRate ...
 func (s Streams) GetBitRate() string {
 	return s.BitRate
+}
+
+func (s Streams) GetSampleRate() string {
+	return s.SampleRate
+}
+
+func (s Streams) GetBitsPerSample() string {
+	return s.BitsPerSample
 }
 
 //GetDefault ...

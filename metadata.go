@@ -51,6 +51,8 @@ type Streams interface {
 	GetDuration() string
 	GetDisposition() Disposition
 	GetBitRate() string
+	GetSampleRate() string
+	GetBitsPerSample() string
 }
 
 // Tags ...
