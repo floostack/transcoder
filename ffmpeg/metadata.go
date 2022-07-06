@@ -289,10 +289,12 @@ func (s Streams) GetBitRate() string {
 	return s.BitRate
 }
 
+//GetSampleRate ...
 func (s Streams) GetSampleRate() string {
 	return s.SampleRate
 }
 
+//GetBitsPerSample ...
 func (s Streams) GetBitsPerSample() string {
 	return s.BitsPerSample
 }
