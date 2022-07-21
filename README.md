@@ -34,7 +34,7 @@
 ## Download from Github
 
 ```shell
-go get github.com/floostack/transcoder
+go get git.code.oa.com/yt-media-ai-videounderstanding/gh-floostack-transcoder
 ```
 
 ## Example
@@ -45,7 +45,7 @@ package main
 import (
 	"log"
 
-	ffmpeg "github.com/floostack/transcoder/ffmpeg"
+	ffmpeg "git.code.oa.com/yt-media-ai-videounderstanding/gh-floostack-transcoder/ffmpeg"
 )
 
 func main() {
