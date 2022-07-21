@@ -55,7 +55,7 @@ type Streams struct {
 	Disposition        Disposition `json:"disposition"`
 	BitRate            string      `json:"bit_rate"`
 	SampleRate         string      `json:"sample_rate"`
-	BitsPerSample      string      `json:"bits_per_sample"`
+	BitsPerSample      int         `json:"bits_per_sample"`
 }
 
 // Tags ...
@@ -301,7 +301,7 @@ func (s Streams) GetSampleRate() string {
 }
 
 //GetBitsPerSample ...
-func (s Streams) GetBitsPerSample() string {
+func (s Streams) GetBitsPerSample() int {
 	return s.BitsPerSample
 }
 
