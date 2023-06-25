@@ -18,6 +18,7 @@ type Options struct {
 	FrameRate             *int              `flag:"-r"`
 	AudioRate             *int              `flag:"-ar"`
 	KeyframeInterval      *int              `flag:"-g"`
+	MinimumGopSize        *int              `flag:"-keyint_min"`
 	AudioCodec            *string           `flag:"-c:a"`
 	AudioBitrate          *string           `flag:"-ab"`
 	AudioChannels         *int              `flag:"-ac"`
@@ -102,7 +103,7 @@ func (opts Options) GetStrArguments() []string {
 					values = append(values, k, fmt.Sprintf("%v", v))
 				}
 			}
-			
+
 			if vi, ok := value.(*int); ok {
 				values = append(values, flag, fmt.Sprintf("%d", *vi))
 			}
