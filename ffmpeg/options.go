@@ -50,6 +50,7 @@ type Options struct {
 	HlsListSize           *int              `flag:"-hls_list_size"`
 	HlsSegmentDuration    *int              `flag:"-hls_time"`
 	HlsMasterPlaylistName *string           `flag:"-master_pl_name"`
+	HlsSegmentType        *string           `flag:"-hls_segment_type"`
 	HlsSegmentFilename    *string           `flag:"-hls_segment_filename"`
 	HlsFmp4InitFilename   *string           `flag:"-hls_fmp4_init_filename"`
 	HTTPMethod            *string           `flag:"-method"`
