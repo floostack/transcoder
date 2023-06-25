@@ -19,6 +19,7 @@ type Options struct {
 	AudioRate             *int              `flag:"-ar"`
 	KeyframeInterval      *int              `flag:"-g"`
 	MinimumGopSize        *int              `flag:"-keyint_min"`
+	ScThreshold           *float64          `flag:"-sc_threshold"`
 	AudioCodec            *string           `flag:"-c:a"`
 	AudioBitrate          *string           `flag:"-ab"`
 	AudioChannels         *int              `flag:"-ac"`
@@ -81,7 +82,6 @@ func (opts Options) GetStrArguments() []string {
 		value := v.Field(i).Interface()
 
 		if !v.Field(i).IsNil() {
-
 			if _, ok := value.(*bool); ok {
 				values = append(values, flag)
 			}
@@ -91,7 +91,6 @@ func (opts Options) GetStrArguments() []string {
 			}
 
 			if va, ok := value.([]string); ok {
-
 				for i := 0; i < len(va); i++ {
 					item := va[i]
 					values = append(values, flag, item)
@@ -108,6 +107,9 @@ func (opts Options) GetStrArguments() []string {
 				values = append(values, flag, fmt.Sprintf("%d", *vi))
 			}
 
+			if vf, ok := value.(*float64); ok {
+				values = append(values, flag, fmt.Sprintf("%g", *vf))
+			}
 		}
 	}
 
