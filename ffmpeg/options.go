@@ -53,6 +53,7 @@ type Options struct {
 	HlsSegmentType        *string           `flag:"-hls_segment_type"`
 	HlsSegmentFilename    *string           `flag:"-hls_segment_filename"`
 	HlsFmp4InitFilename   *string           `flag:"-hls_fmp4_init_filename"`
+	HlsFlags              *string           `flag:"-hls_flags"`
 	HTTPMethod            *string           `flag:"-method"`
 	HTTPKeepAlive         *bool             `flag:"-multiple_requests"`
 	Hwaccel               *string           `flag:"-hwaccel"`
