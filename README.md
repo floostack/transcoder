@@ -4,12 +4,12 @@
 
 <div align="center">
   <!-- Build status -->
-  <a href="https://circleci.com/gh/floostack/transcoder">
-    <img src="https://circleci.com/gh/floostack/transcoder.svg?style=svg" alt="Build Status" />
+  <a href="https://circleci.com/gh/amir-the-h/transcoder">
+    <img src="https://circleci.com/gh/amir-the-h/transcoder.svg?style=svg" alt="Build Status" />
   </a>
 
   <!-- Code Quality -->
-  <a href="https://www.codacy.com/manual/floostack/transcoder?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=floostack/transcoder&amp;utm_campaign=Badge_Grade">
+  <a href="https://www.codacy.com/manual/amir-the-h/transcoder?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=amir-the-h/transcoder&amp;utm_campaign=Badge_Grade">
     <img src="https://app.codacy.com/project/badge/Grade/f8ee19ef723b4134bb8bb1f9c439959e" alt="Build Status" />
   </a>
 
@@ -18,7 +18,7 @@
 <br />
 
 <div align="center">
-  <sub>Created by <a href="https://floostack.com">FlooStack</a>.</sub>
+  <sub>Created by <a href="https://amir-the-h.com">amir-the-h</a>.</sub>
 </div>
 
 ## Features
@@ -34,7 +34,7 @@
 ## Download from Github
 
 ```shell
-go get github.com/floostack/transcoder
+go get github.com/amir-the-h/transcoder
 ```
 
 ## Example
@@ -45,7 +45,7 @@ package main
 import (
 	"log"
 
-	ffmpeg "github.com/floostack/transcoder/ffmpeg"
+	ffmpeg "github.com/amir-the-h/transcoder/ffmpeg"
 )
 
 func main() {
