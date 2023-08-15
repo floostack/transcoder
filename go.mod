@@ -1,3 +1,3 @@
-module github.com/amir-the-h/transcoder
+module github.com/floostack/transcoder
 
 go 1.13

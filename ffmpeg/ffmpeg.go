@@ -14,8 +14,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/amir-the-h/transcoder"
-	"github.com/amir-the-h/transcoder/utils"
+	"github.com/floostack/transcoder"
+	"github.com/floostack/transcoder/utils"
 )
 
 // Transcoder ...
