@@ -169,6 +169,11 @@ func (f Format) GetTags() transcoder.Tags {
 	return f.Tags
 }
 
+// GetStartTime ...
+func (f Format) GetStartTime() string {
+	return f.StartTime
+}
+
 // GetEncoder ...
 func (t Tags) GetEncoder() string {
 	return t.Encoder
@@ -319,6 +324,96 @@ func (s Streams) GetBitRate() string {
 	return s.BitRate
 }
 
+// GetBitsPerRawSample ...
+func (s Streams) GetBitsPerRawSample() string {
+	return s.BitsPerRawSample
+}
+
+// GetBitsPerSample ...
+func (s Streams) GetBitsPerSample() int {
+	return s.BitsPerSample
+}
+
+// GetChannelLayout ...
+func (s Streams) GetChannelLayout() string {
+	return s.ChannelLayout
+}
+
+// GetChannels ...
+func (s Streams) GetChannels() int {
+	return s.Channels
+}
+
+// GetClosedCaptions ...
+func (s Streams) GetClosedCaptions() int {
+	return s.ClosedCaptions
+}
+
+// GetExtradataSize ...
+func (s Streams) GetExtradataSize() int {
+	return s.ExtradataSize
+}
+
+// GetFilmGrain ...
+func (s Streams) GetFilmGrain() int {
+	return s.FilmGrain
+}
+
+// GetIsAvc ...
+func (s Streams) GetIsAvc() string {
+	return s.IsAvc
+}
+
+// GetNalLengthSize ...
+func (s Streams) GetNalLengthSize() string {
+	return s.NalLengthSize
+}
+
+// GetNbFrames ...
+func (s Streams) GetNbFrames() int {
+	return s.NbFrames
+}
+
+// GetSampleFmt ...
+func (s Streams) GetSampleFmt() string {
+	return s.SampleFmt
+}
+
+// GetSampleRate ...
+func (s Streams) GetSampleRate() string {
+	return s.SampleRate
+}
+
+// GetStartPts ...
+func (s Streams) GetStartPts() int {
+	return s.StartPts
+}
+
+// GetStartTime ...
+func (s Streams) GetStartTime() string {
+	return s.StartTime
+}
+
+// GetCompatibleBrands ...
+func (t Tags) GetCompatibleBrands() string {
+	return t.CompatibleBrands
+}
+
+// GetCreationTime ...
+func (t Tags) GetCreationTime() string {
+	return t.CreationTime
+}
+
+// GetMajorBrand ...
+func (t Tags) GetMajorBrand() string {
+	return t.MajorBrand
+}
+
+// GetMinorVersion ...
+func (t Tags) GetMinorVersion() string {
+	return t.MinorVersion
+}
+
 // GetDefault ...
 func (d Disposition) GetDefault() int {
 	return d.Default
@@ -367,4 +462,34 @@ func (d Disposition) GetVisualImpaired() int {
 // GetCleanEffects ...
 func (d Disposition) GetCleanEffects() int {
 	return d.CleanEffects
+}
+
+// GetAttachedPic ...
+func (d Disposition) GetAttachedPic() int {
+	return d.AttachedPic
+}
+
+// GetCaptions ...
+func (d Disposition) GetCaptions() int {
+	return d.Captions
+}
+
+// GetDependent ...
+func (d Disposition) GetDependent() int {
+	return d.Dependent
+}
+
+// GetMetadata ...
+func (d Disposition) GetMetadata() int {
+	return d.Metadata
+}
+
+// GetStillImage ...
+func (d Disposition) GetStillImage() int {
+	return d.StillImage
+}
+
+// GetTimedThumbnails ...
+func (d Disposition) GetTimedThumbnails() int {
+	return d.TimedThumbnails
 }

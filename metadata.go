@@ -13,6 +13,7 @@ type Format interface {
 	GetNbPrograms() int
 	GetFormatName() string
 	GetFormatLongName() string
+	GetStartTime() string
 	GetDuration() string
 	GetSize() string
 	GetBitRate() string
@@ -35,6 +36,8 @@ type Streams interface {
 	GetHeight() int
 	GetCodedWidth() int
 	GetCodedHeight() int
+	GetClosedCaptions() int
+	GetFilmGrain() int
 	GetHasBFrames() int
 	GetSampleAspectRatio() string
 	GetDisplayAspectRatio() string
@@ -44,18 +47,34 @@ type Streams interface {
 	GetRefs() int
 	GetQuarterSample() string
 	GetDivxPacked() string
+	GetIsAvc() string
+	GetNalLengthSize() string
 	GetRFrameRate() string
 	GetAvgFrameRate() string
 	GetTimeBase() string
+	GetStartPts() int
+	GetStartTime() string
 	GetDurationTs() int
 	GetDuration() string
-	GetDisposition() Disposition
 	GetBitRate() string
+	GetBitsPerRawSample() string
+	GetNbFrames() int
+	GetExtradataSize() int
+	GetDisposition() Disposition
+	GetSampleFmt() string
+	GetSampleRate() string
+	GetChannels() int
+	GetChannelLayout() string
+	GetBitsPerSample() int
 }
 
 // Tags ...
 type Tags interface {
 	GetEncoder() string
+	GetMajorBrand() string
+	GetMinorVersion() string
+	GetCompatibleBrands() string
+	GetCreationTime() string
 }
 
 // Disposition ...
@@ -70,4 +89,10 @@ type Disposition interface {
 	GetHearingImpaired() int
 	GetVisualImpaired() int
 	GetCleanEffects() int
+	GetAttachedPic() int
+	GetTimedThumbnails() int
+	GetCaptions() int
+	GetMetadata() int
+	GetDependent() int
+	GetStillImage() int
 }
