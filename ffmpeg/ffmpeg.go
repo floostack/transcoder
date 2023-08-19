@@ -245,7 +245,7 @@ func (t *Transcoder) GetMetadata() (transcoder.Metadata, error) {
 
 		var metadata Metadata
 
-		if err = json.Unmarshal(outb.Bytes(), &metadata); err != nil {
+		if err = json.Unmarshal([]byte(outb.String()), &metadata); err != nil {
 			return nil, err
 		}
 		t.metadata = metadata
