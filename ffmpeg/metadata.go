@@ -65,7 +65,7 @@ type Streams struct {
 	Duration           string            `json:"duration"`
 	BitRate            string            `json:"bit_rate"`
 	BitsPerRawSample   string            `json:"bits_per_raw_sample,omitempty"`
-	NbFrames           int               `json:"nb_frames"`
+	NbFrames           int               `json:"nb_frames,string,omitempty"`
 	ExtradataSize      int               `json:"extradata_size"`
 	Disposition        Disposition       `json:"disposition"`
 	Tags               map[string]string `json:"tags,omitempty"`
