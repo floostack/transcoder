@@ -44,7 +44,7 @@ type Streams interface {
 	GetRefs() int
 	GetQuarterSample() string
 	GetDivxPacked() string
-	GetRFrameRrate() string
+	GetRFrameRate() string
 	GetAvgFrameRate() string
 	GetTimeBase() string
 	GetDurationTs() int

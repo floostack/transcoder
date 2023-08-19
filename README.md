@@ -18,7 +18,7 @@
 <br />
 
 <div align="center">
-  <sub>Created by <a href="https://floostack.com">floostack</a>.</sub>
+  <sub>Created by <a href="https://floostack.com">FlooStack</a>.</sub>
 </div>
 
 ## Features
