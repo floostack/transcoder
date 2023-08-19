@@ -27,7 +27,7 @@ type Transcoder struct {
 	outputOptions    [][]string
 	metadata         transcoder.Metadata
 	inputPipeReader  *io.ReadCloser
-	outputPipeWriter *io.ReadWriteCloser
+	outputPipeWriter *io.WriteCloser
 	commandContext   *context.Context
 }
 
@@ -153,7 +153,7 @@ func (t *Transcoder) InputPipe(r *io.ReadCloser) transcoder.Transcoder {
 }
 
 // OutputPipe ...
-func (t *Transcoder) OutputPipe(w *io.ReadWriteCloser) transcoder.Transcoder {
+func (t *Transcoder) OutputPipe(w *io.WriteCloser) transcoder.Transcoder {
 	t.output = []string{}
 	t.outputPipeWriter = w
 	return t

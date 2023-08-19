@@ -11,7 +11,7 @@ type Transcoder interface {
 	Input(i string) Transcoder
 	InputPipe(r *io.ReadCloser) Transcoder
 	Output(o string) Transcoder
-	OutputPipe(w *io.ReadWriteCloser) Transcoder
+	OutputPipe(w *io.WriteCloser) Transcoder
 	WithInputOptions(opts Options) Transcoder
 	WithAdditionalInputOptions(opts Options) Transcoder
 	WithOutputOptions(opts Options) Transcoder
