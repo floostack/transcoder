@@ -27,9 +27,7 @@ type Transcoder struct {
 	outputOptions    [][]string
 	metadata         transcoder.Metadata
 	inputPipeReader  *io.ReadCloser
-	outputPipeReader *io.ReadCloser
-	inputPipeWriter  *io.WriteCloser
-	outputPipeWriter *io.WriteCloser
+	outputPipeWriter *io.ReadWriteCloser
 	commandContext   *context.Context
 }
 
@@ -148,18 +146,16 @@ func (t *Transcoder) Output(arg string) transcoder.Transcoder {
 }
 
 // InputPipe ...
-func (t *Transcoder) InputPipe(w *io.WriteCloser, r *io.ReadCloser) transcoder.Transcoder {
-	t.input = ""
-	t.inputPipeWriter = w
+func (t *Transcoder) InputPipe(r *io.ReadCloser) transcoder.Transcoder {
+	t.input = "pipe:"
 	t.inputPipeReader = r
 	return t
 }
 
 // OutputPipe ...
-func (t *Transcoder) OutputPipe(w *io.WriteCloser, r *io.ReadCloser) transcoder.Transcoder {
+func (t *Transcoder) OutputPipe(w *io.ReadWriteCloser) transcoder.Transcoder {
 	t.output = []string{}
 	t.outputPipeWriter = w
-	t.outputPipeReader = r
 	return t
 }
 
@@ -234,15 +230,17 @@ func (t *Transcoder) GetMetadata() (transcoder.Metadata, error) {
 
 		input := t.input
 
-		if t.inputPipeReader != nil {
-			input = "pipe:"
-		}
-
 		args := []string{"-i", input, "-print_format", "json", "-show_format", "-show_streams", "-show_error"}
 
 		cmd := exec.Command(t.config.FfprobeBinPath, args...)
 		cmd.Stdout = &outb
 		cmd.Stderr = &errb
+		if t.inputPipeReader != nil {
+			cmd.Stdin = *t.inputPipeReader
+		}
+		if t.outputPipeWriter != nil {
+			cmd.Stdout = *t.outputPipeWriter
+		}
 
 		err := cmd.Run()
 		if err != nil {
@@ -251,11 +249,12 @@ func (t *Transcoder) GetMetadata() (transcoder.Metadata, error) {
 
 		var metadata Metadata
 
-		if err = json.Unmarshal([]byte(outb.String()), &metadata); err != nil {
-			return nil, err
+		if t.outputPipeWriter == nil {
+			if err = json.Unmarshal(outb.Bytes(), &metadata); err != nil {
+				return nil, err
+			}
+			t.metadata = metadata
 		}
-
-		t.metadata = metadata
 
 		return metadata, nil
 	}
