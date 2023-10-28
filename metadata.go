@@ -46,11 +46,14 @@ type Streams interface {
 	GetDivxPacked() string
 	GetRFrameRrate() string
 	GetAvgFrameRate() string
+	GetNbFrames() string
 	GetTimeBase() string
 	GetDurationTs() int
 	GetDuration() string
 	GetDisposition() Disposition
 	GetBitRate() string
+	GetSampleRate() string
+	GetBitsPerSample() int
 }
 
 // Tags ...

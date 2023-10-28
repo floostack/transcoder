@@ -1,6 +1,6 @@
 package ffmpeg
 
-import "github.com/floostack/transcoder"
+import transcoder "git.code.oa.com/yt-media-ai-videounderstanding/gh-floostack-transcoder"
 
 // Metadata ...
 type Metadata struct {
@@ -48,11 +48,14 @@ type Streams struct {
 	DivxPacked         string      `json:"divx_packed"`
 	RFrameRrate        string      `json:"r_frame_rate"`
 	AvgFrameRate       string      `json:"avg_frame_rate"`
+	NbFrames           string      `json:"nb_frames"`
 	TimeBase           string      `json:"time_base"`
 	DurationTs         int         `json:"duration_ts"`
 	Duration           string      `json:"duration"`
 	Disposition        Disposition `json:"disposition"`
 	BitRate            string      `json:"bit_rate"`
+	SampleRate         string      `json:"sample_rate"`
+	BitsPerSample      int         `json:"bits_per_sample"`
 }
 
 // Tags ...
@@ -262,6 +265,11 @@ func (s Streams) GetAvgFrameRate() string {
 	return s.AvgFrameRate
 }
 
+//GetNbFrames ...
+func (s Streams) GetNbFrames() string {
+	return s.NbFrames
+}
+
 //GetTimeBase ...
 func (s Streams) GetTimeBase() string {
 	return s.TimeBase
@@ -285,6 +293,16 @@ func (s Streams) GetDisposition() transcoder.Disposition {
 //GetBitRate ...
 func (s Streams) GetBitRate() string {
 	return s.BitRate
+}
+
+//GetSampleRate ...
+func (s Streams) GetSampleRate() string {
+	return s.SampleRate
+}
+
+//GetBitsPerSample ...
+func (s Streams) GetBitsPerSample() int {
+	return s.BitsPerSample
 }
 
 //GetDefault ...

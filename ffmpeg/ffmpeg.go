@@ -14,8 +14,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/floostack/transcoder"
-	"github.com/floostack/transcoder/utils"
+	"git.code.oa.com/yt-media-ai-videounderstanding/gh-floostack-transcoder"
+	"git.code.oa.com/yt-media-ai-videounderstanding/gh-floostack-transcoder/utils"
 )
 
 // Transcoder ...
