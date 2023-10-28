@@ -18,6 +18,8 @@ type Options struct {
 	FrameRate             *int              `flag:"-r"`
 	AudioRate             *int              `flag:"-ar"`
 	KeyframeInterval      *int              `flag:"-g"`
+	MinimumGopSize        *int              `flag:"-keyint_min"`
+	ScThreshold           *float64          `flag:"-sc_threshold"`
 	AudioCodec            *string           `flag:"-c:a"`
 	AudioBitrate          *string           `flag:"-ab"`
 	AudioChannels         *int              `flag:"-ac"`
@@ -48,7 +50,10 @@ type Options struct {
 	HlsListSize           *int              `flag:"-hls_list_size"`
 	HlsSegmentDuration    *int              `flag:"-hls_time"`
 	HlsMasterPlaylistName *string           `flag:"-master_pl_name"`
+	HlsSegmentType        *string           `flag:"-hls_segment_type"`
 	HlsSegmentFilename    *string           `flag:"-hls_segment_filename"`
+	HlsFmp4InitFilename   *string           `flag:"-hls_fmp4_init_filename"`
+	HlsFlags              *string           `flag:"-hls_flags"`
 	HTTPMethod            *string           `flag:"-method"`
 	HTTPKeepAlive         *bool             `flag:"-multiple_requests"`
 	Hwaccel               *string           `flag:"-hwaccel"`
@@ -80,7 +85,6 @@ func (opts Options) GetStrArguments() []string {
 		value := v.Field(i).Interface()
 
 		if !v.Field(i).IsNil() {
-
 			if _, ok := value.(*bool); ok {
 				values = append(values, flag)
 			}
@@ -90,7 +94,6 @@ func (opts Options) GetStrArguments() []string {
 			}
 
 			if va, ok := value.([]string); ok {
-
 				for i := 0; i < len(va); i++ {
 					item := va[i]
 					values = append(values, flag, item)
@@ -102,11 +105,14 @@ func (opts Options) GetStrArguments() []string {
 					values = append(values, k, fmt.Sprintf("%v", v))
 				}
 			}
-			
+
 			if vi, ok := value.(*int); ok {
 				values = append(values, flag, fmt.Sprintf("%d", *vi))
 			}
 
+			if vf, ok := value.(*float64); ok {
+				values = append(values, flag, fmt.Sprintf("%g", *vf))
+			}
 		}
 	}
 
